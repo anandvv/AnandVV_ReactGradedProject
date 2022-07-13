@@ -24,39 +24,28 @@ const InnerApp = () => {
     let apiEndPoint = "";
     
     switch(window.location.pathname){
-      case "/movies-coming":
-        // apiEndPoint = `${baseAPIUrl}/movies-coming`;
-        apiEndPoint = `/movies-coming`;
-        // apiEndPoint = `${window.location.href}`;
-        setShowFavoriteButtons(true);
-        setCurrentApi(apiEndPoint);
-        break;
       case "/in-theaters":
-        // apiEndPoint = `${baseAPIUrl}/movies-in-theaters`;
         apiEndPoint = `/movies-in-theaters`;
         setShowFavoriteButtons(true);
         setCurrentApi(apiEndPoint);
         break;
       case "/top-rated-india":
-        // apiEndPoint = `${baseAPIUrl}/top-rated-india`;
         apiEndPoint = `/top-rated-india`;
         setShowFavoriteButtons(true);
         setCurrentApi(apiEndPoint);
         break;
       case "/top-rated-movies":
-        // apiEndPoint = `${baseAPIUrl}/top-rated-movies`;
         apiEndPoint = `/top-rated-movies`;
         setShowFavoriteButtons(true);
         setCurrentApi(apiEndPoint);
         break;
       case "/favorites":
-        // apiEndPoint = `${baseAPIUrl}/favourit`;
         apiEndPoint = `/favourit`;
         setShowFavoriteButtons(false);
         setCurrentApi(apiEndPoint);
         break;
+      case "/movies-coming":
       default: 
-        // apiEndPoint = `${baseAPIUrl}/movies-coming`;
         apiEndPoint = `/movies-coming`;
         setShowFavoriteButtons(true);
         setCurrentApi(apiEndPoint);
@@ -89,22 +78,6 @@ const InnerApp = () => {
 
   ]);
   
-  // return (
-  //   <>
-  //       <NavigationBar />
-  //       {/* <Routes>
-  //         <Route path="/:category/:id" element={<MovieDetails />} />
-  //         <Route path="/in-theaters" element={<MovieList movies={movies} currentApi={currentApi} baseUrl={baseUrl} showFavoriteButtons={showFavoriteButtons} />} />
-  //         <Route path="/coming-soon" element={<MovieList movies={movies} currentApi={currentApi} baseUrl={baseUrl} showFavoriteButtons={showFavoriteButtons} />} />
-  //         <Route path="/top-rated-india" element={<MovieList movies={movies} currentApi={currentApi} baseUrl={baseUrl} showFavoriteButtons={showFavoriteButtons} />} />
-  //         <Route path="/top-rated-movies" element={<MovieList movies={movies} currentApi={currentApi} baseUrl={baseUrl} showFavoriteButtons={showFavoriteButtons} />} />
-  //         <Route path="/favourit" element={<MovieList movies={movies} currentApi={currentApi} baseUrl={baseUrl} showFavoriteButtons={showFavoriteButtons} />} />
-  //         <Route path="/" element={<MovieList movies={movies} currentApi={currentApi} baseUrl={baseUrl} showFavoriteButtons={showFavoriteButtons} />} />
-  //       </Routes> */}
-  //       {/* <MovieList movies={movies} currentApi={currentApi} baseUrl={baseUrl} showFavoriteButtons={showFavoriteButtons} countID={countID}/> */}
-    
-  //   </>
-  // );
 }
 
 const App = () => {
