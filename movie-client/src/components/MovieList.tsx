@@ -1,11 +1,12 @@
-import React, { MouseEvent, useEffect, useRef, useState } from 'react';
+import React, { MouseEvent, useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
+
 import axios from 'axios';
 
 import Button from 'react-bootstrap/Button';
 import Card from 'react-bootstrap/Card';
 import styled from "styled-components";
 import { v4 as uuidv4 } from 'uuid';
-
 
 const MovieListContainer = styled.div`
   display: flex;
@@ -18,8 +19,9 @@ const MovieListContainer = styled.div`
 
 const CoverImage = styled.img`
   object-fit: cover;
+  display: flex;
   height: 300px;
-  width: auto;
+  width: 200px;
   align: center;
   margin-left: auto;
   margin-right: auto;
@@ -37,29 +39,35 @@ const MovieList = (props: any) => {
     let favMovies: any[] = props.movies;
     const [movies, setMovies] = useState(favMovies);
 
-    const movieRef = useRef(null);
-    let BASE_URL = './img/';
+    let BASE_IMAGE_URL = './img/';
+    let BASE_API_URL = props.baseUrl;
+
+    console.log("props.currentApi: " + props.currentApi);
+    console.log("props.baseUrl: " + props.baseUrl);
+    console.log(props.movies);
+     
 
     const getMovieRequest = async (url: string) => {
-        const response = await fetch(url);
+        console.log(`Url to Fetch Data: ${BASE_API_URL}${url}`);
+        
+        const response = await fetch(`${BASE_API_URL}${url}`);
         return response.json();
     };
 
     const addFavoriteHandler = async (e: MouseEvent) => {
         const target = e.target as HTMLButtonElement;
         if (target) {
-                        
-            //base url of the app
-            let baseUrl = `${props.baseUrl}`;
 
             //current url for the movie clicked
             let url = `${props.currentApi}/?title=${target.value}`;
+            console.log("url of clicked movie: " + url);
+            
 
             let movie = await getMovieRequest(url);
             console.log(movie[0]);
 
             //if the movies is already in favorites, do nothing
-            let favoriteMovies = await getMovieRequest(baseUrl + "/favourit");
+            let favoriteMovies = await getMovieRequest("/favourit");
             console.log("Favorite Movies: " + favoriteMovies);
 
             let flag = false;
@@ -81,8 +89,8 @@ const MovieList = (props: any) => {
                     setFavoriteID(uuidv4());
                     if(movie[0].id === undefined) movie[0].id = favoriteID;
 
-                    console.log(baseUrl + "/favourit");
-                    await axios.post(baseUrl + "/favourit", movie[0])
+                    console.log(BASE_API_URL + "/favourit");
+                    await axios.post(BASE_API_URL + "/favourit", movie[0])
                     .then(res => {
                         console.log(res);
                         console.log(res.data);
@@ -101,9 +109,6 @@ const MovieList = (props: any) => {
         if (target) {
             //get the movie object corresponding to the id from the current URL
             
-            //base url of the app
-            let baseUrl = `${props.baseUrl}`;
-
             //current url for the movie clicked
             let url = `${props.currentApi}/?title=${target.value}`;
 
@@ -114,8 +119,8 @@ const MovieList = (props: any) => {
             //write the movie object into the database favorites
             try{ 
                 if (movie[0].title !== "") {
-                    console.log(baseUrl + "/favourit");
-                    await fetch(baseUrl + "/favourit/" + movie[0].id, {method: 'DELETE'})
+                    console.log(BASE_API_URL + "/favourit");
+                    await fetch(BASE_API_URL + "/favourit/" + movie[0].id, {method: 'DELETE'})
                     .then(res => {
                         console.log(res);
                     })    
@@ -140,11 +145,21 @@ const MovieList = (props: any) => {
     }, [movies]);
 
     return (
-        <MovieListContainer>
+            <MovieListContainer>
             {
                 props.movies.map((movie: Movie, index: string) => (
-                    <Card style={{ width: '16rem' }} key={ index } ref={ movieRef }>
-                        <CoverImage src={`${BASE_URL}${movie.poster}`} alt={movie.title} />
+                    <Card style={{ width: '16rem' }} key={ index } >
+                        {movie.id !== undefined ?
+                            <Link to={`${props.currentApi}/${movie.id}`}>
+                                <CoverImage src={`${BASE_IMAGE_URL}${movie.poster}`} alt={movie.title} />    
+                            </Link>
+                            :
+                            <Link to={`${props.currentApi}/${movie.title}`}>
+                                <CoverImage src={`${BASE_IMAGE_URL}${movie.poster}`} alt={movie.title} />    
+                            </Link>
+                        }
+                        {/* <CoverImage src={`${BASE_URL}${movie.poster}`} alt={movie.title} /> */}
+                       
                         <Card.Body>
                             <Card.Title>{movie.title}</Card.Title>
                             <Card.Text>
@@ -159,7 +174,7 @@ const MovieList = (props: any) => {
                     </Card>        
                 ))
             }
-        </MovieListContainer>
+            </MovieListContainer>
     );
 }
 

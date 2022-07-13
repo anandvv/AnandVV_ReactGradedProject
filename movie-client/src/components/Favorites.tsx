@@ -11,6 +11,7 @@ const MovieListContainer = styled.div`
   gap: 25px;
   justify-content: space-evenly;;
 `;
+
 const CoverImage = styled.img`
   object-fit: cover;
   height: 362px;
