@@ -52,14 +52,17 @@ const InnerApp = () => {
         break;
     }
 
-		const response = await fetch(`${baseAPIUrl}${apiEndPoint}`);
-		const responseJson = await response.json();
-    console.log(responseJson);
-    
+    async function GetMovies() {
+      const response = await fetch(`${baseAPIUrl}${apiEndPoint}`);
+      return response.json();
+    }
 
+		const responseJson = await GetMovies();
+    
 		if (responseJson.length > 0) {
 			setMovies(responseJson);
 		}
+
 	};
 
 	useEffect(() => {

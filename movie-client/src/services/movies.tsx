@@ -3,10 +3,10 @@ import IMovie from "../models/IMovie";
 
 const baseUrl = "http://localhost:3002";
 
-const getMovies = (category: string) => {
-  return axios.get<IMovie[]>(`${baseUrl}/${category}`)
-    .then(response => response.data)
-};
+// const getMovies = (category: string) => {
+//   return axios.get<IMovie[]>(`${baseUrl}/${category}`)
+//     .then(response => response.data)
+// };
 
 const getMoviesById = async (category: string, id: string | number) => {
     
@@ -68,7 +68,7 @@ const checkMovie = (title: string) => {
 // };
 
 export {
-  getMovies,
+//   getMovies,
   getMoviesById,
   checkMovie
 //   addMovieToFavourite,

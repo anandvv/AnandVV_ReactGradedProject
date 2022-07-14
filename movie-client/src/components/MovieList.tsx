@@ -1,12 +1,14 @@
-import React, { MouseEvent, useEffect, useState } from 'react';
+import React, { ChangeEvent, MouseEvent, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 
 import axios from 'axios';
-
 import Button from 'react-bootstrap/Button';
 import Card from 'react-bootstrap/Card';
+import Form from 'react-bootstrap/Form';
 import styled from "styled-components";
 import { v4 as uuidv4 } from 'uuid';
+import toast, {Toaster} from 'react-hot-toast';
+import IMovie from '../models/IMovie';
 
 const MovieListContainer = styled.div`
   display: flex;
@@ -27,17 +29,14 @@ const CoverImage = styled.img`
   margin-right: auto;
 `;
 
-type Movie = {
-    id: string,
-    title: string,
-    poster: string,
-    storyLine: string
-}
-
 const MovieList = (props: any) => {
     const [favoriteID, setFavoriteID] = useState('6ec0bd7f-11c0-43da-975e-2a8ad9ebae0b');
-    let favMovies: any[] = props.movies;
-    const [movies, setMovies] = useState(favMovies);
+    const [movies, setMovies] = useState<IMovie[]>(props.movies);
+
+    const [searchInput, setSearchInput] = useState('');
+    console.log(searchInput);
+    
+    const [filteredResults, setFilteredResults] = useState<IMovie[]>([]);
 
     let BASE_IMAGE_URL = './img/';
     let BASE_API_URL = props.baseUrl;
@@ -45,7 +44,24 @@ const MovieList = (props: any) => {
     console.log("props.currentApi: " + props.currentApi);
     console.log("props.baseUrl: " + props.baseUrl);
     console.log(props.movies);
-     
+    
+    const filterItems = (searchString: string, data: IMovie[]) => {
+        if (searchString !== "") {
+            const filteredMovies = data.filter(
+                movie => movie.title.toLowerCase().indexOf(searchString.toLowerCase()) !== -1
+            )
+            setMovies(filteredMovies);
+        }
+        else {
+            setMovies(data);
+        }
+    }
+
+    const handleSearch = (event: ChangeEvent<HTMLInputElement>) => {
+        const searchString = event.target.value;
+        setSearchInput(searchString);
+        filterItems(searchString, props.movies);
+    }
 
     const getMovieRequest = async (url: string) => {
         console.log(`Url to Fetch Data: ${BASE_API_URL}${url}`);
@@ -80,7 +96,10 @@ const MovieList = (props: any) => {
                 }
             });
 
-            if(flag) return;
+            if(flag) {
+                toast(`${movie[0].title} is already in favorites!`, {icon: '', position: 'top-right'});
+                return;
+            }
 
             
             //write the movie object into the database favorites
@@ -94,7 +113,8 @@ const MovieList = (props: any) => {
                     .then(res => {
                         console.log(res);
                         console.log(res.data);
-                    })    
+                    });
+                    toast(`${movie[0].title} added to favorites!`, {icon: '👏', position: 'top-right'});
                 }
         
             }catch(err: any){
@@ -141,41 +161,56 @@ const MovieList = (props: any) => {
     }
 
     useEffect(()=>{
-        console.log("Re-rendering!")
+        console.log("Re-rendering!");
     }, [movies]);
 
     return (
+        <>
+            <Toaster/>
+            <div>
+                <Form style={{ position: "sticky", top: "0px", zIndex: 1 }}>
+                    <Form.Group className="mb-3" controlId="formBasicEmail">
+                        <Form.Control type="text" placeholder="Search for a movie" value={searchInput} onChange={handleSearch} />
+                    </Form.Group>
+                </Form>
+            </div>
+            
             <MovieListContainer>
             {
-                props.movies.map((movie: Movie, index: string) => (
-                    <Card style={{ width: '16rem' }} key={ index } >
-                        {movie.id !== undefined ?
-                            <Link to={`${props.currentApi}/${movie.id}`}>
-                                <CoverImage src={`${BASE_IMAGE_URL}${movie.poster}`} alt={movie.title} />    
-                            </Link>
-                            :
-                            <Link to={`${props.currentApi}/${movie.title}`}>
-                                <CoverImage src={`${BASE_IMAGE_URL}${movie.poster}`} alt={movie.title} />    
-                            </Link>
-                        }
-                        {/* <CoverImage src={`${BASE_URL}${movie.poster}`} alt={movie.title} /> */}
-                       
-                        <Card.Body>
-                            <Card.Title>{movie.title}</Card.Title>
-                            <Card.Text>
-                            {movie.storyLine}
-                            </Card.Text>
-                            {
-                                props.showFavoriteButtons 
-                                ?   <Button variant="primary" value={movie.title} onClick={addFavoriteHandler}>Favorite</Button>
-                                :   <Button variant="danger" value={movie.title} onClick={removeFavoriteHandler}>Remove</Button>
-                            }
-                        </Card.Body>
-                    </Card>        
-                ))
+                searchInput !== "" ?
+                newFunction(movies, props, BASE_IMAGE_URL, addFavoriteHandler, removeFavoriteHandler)
+                :
+                newFunction(props.movies, props, BASE_IMAGE_URL, addFavoriteHandler, removeFavoriteHandler)
             }
             </MovieListContainer>
+        </>
     );
 }
 
 export default MovieList;
+
+function newFunction(movies: IMovie[], props: any, BASE_IMAGE_URL: string, addFavoriteHandler: (e: MouseEvent) => Promise<void>, removeFavoriteHandler: (e: MouseEvent) => Promise<void>): React.ReactNode {
+    return movies.map((movie: IMovie, index: number) => (
+        <Card style={{ width: '16rem' }} key={index}>
+            {movie.id !== undefined ?
+                <Link to={`${props.currentApi}/${movie.id}`}>
+                    <CoverImage src={`${BASE_IMAGE_URL}${movie.poster}`} alt={movie.title} />
+                </Link>
+                :
+                <Link to={`${props.currentApi}/${movie.title}`}>
+                    <CoverImage src={`${BASE_IMAGE_URL}${movie.poster}`} alt={movie.title} />
+                </Link>}
+            {/* <CoverImage src={`${BASE_URL}${movie.poster}`} alt={movie.title} /> */}
+
+            <Card.Body>
+                <Card.Title>{movie.title}</Card.Title>
+                <Card.Text>
+                    {movie.storyline.slice(0,50)}...
+                </Card.Text>
+                {props.showFavoriteButtons
+                    ? <Button variant="primary" value={movie.title} onClick={addFavoriteHandler}>Favorite</Button>
+                    : <Button variant="danger" value={movie.title} onClick={removeFavoriteHandler}>Remove</Button>}
+            </Card.Body>
+        </Card>
+    ));
+}
